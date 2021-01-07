@@ -59,7 +59,7 @@
             <div class="py-6 lg:py-12">
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <template v-if="findActive === 'posts'">
-                        <post v-for="post in current_user.posts" :key="post.id" :post="post"></post>
+                        <post v-for="(post, p) in current_user.posts" :index="p" :key="p" :post="post" :user="$page.user"></post>
                     </template>
 
                     <template v-if="findActive === 'comments'">
@@ -118,10 +118,6 @@
                     }
                 ]
             }
-        },
-        mounted()
-        {
-            this.createArr();
         }
     }
 

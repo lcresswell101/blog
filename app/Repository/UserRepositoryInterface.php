@@ -2,9 +2,18 @@
 
 namespace App\Repository;
 
-use Illuminate\Contracts\Auth\Authenticatable;
-
 interface UserRepositoryInterface
 {
-    public function getUser(): ?Authenticatable;
+    /**
+     * @param string $model
+     * @param $id
+     * @return mixed
+     */
+    public function favourite(string $model, $id);
+
+    /**
+     * @param string $model
+     * @return mixed
+     */
+    public function getFavourites(string $model)
 }

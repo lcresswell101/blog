@@ -2,23 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Repository\UserRepositoryInterface;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class UserController extends Controller
 {
-    private $userRepository;
-
     /**
      * UserController constructor.
      * @param UserRepositoryInterface $userRepository
      */
     public function __construct(UserRepositoryInterface $userRepository)
     {
-        $this->userRepository = $userRepository;
+        parent::__construct($userRepository);
     }
 
     /**
@@ -52,15 +50,14 @@ class UserController extends Controller
         //
     }
 
+
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $user
+     * @param $id
      * @return Response
      */
-    public function show(User $user)
+    public function show($id)
     {
-        $user = $user->with(['posts.user', 'comments.commentable'])->first();
+        $user = $this->userRepository->find($id)->with(['posts.user', 'posts.image', 'comments.commentable'])->get()->first();
 
         return Inertia::render('Users/Show', [
             'current_user' => $user
@@ -99,5 +96,17 @@ class UserController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    /**
+     * @param $id
+     * @param $type
+     * @return RedirectResponse
+     */
+    public function favourite($id, $type): RedirectResponse
+    {
+        $this->user->favourite("favourite_{$type}s", $id);
+
+        return redirect()->back();
     }
 }

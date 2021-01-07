@@ -9,6 +9,8 @@
         </template>
 
         <template #form>
+            <upload-photo ref="uploadPhoto" :error="form.error('photo')" :deleteRoute="'image.destroy'"></upload-photo>
+
             <!--      Title      -->
             <div class="col-span-6 sm:col-span-4">
                 <jet-label for="title" value="Title" />
@@ -45,6 +47,7 @@
     import JetActionMessage from '@/Jetstream/ActionMessage'
     import JetSecondaryButton from '@/Jetstream/SecondaryButton'
     import TextArea from '@/Components/TextArea'
+    import UploadPhoto from '@/Components/UploadPhoto'
 
     export default {
         name: "CreatePostForm",
@@ -56,20 +59,28 @@
             JetInputError,
             JetLabel,
             JetSecondaryButton,
-            TextArea
+            TextArea,
+            UploadPhoto
         },
         data(){
             return {
                 form: this.$inertia.form({
                     '_method': 'POST',
                     title: '',
-                    content: ''
-                })
+                    content: '',
+                    photo: null
+                }),
             }
         },
         methods: {
             createPost()
             {
+                let photo = this.$refs.uploadPhoto.$refs.photo;
+
+                if (photo) {
+                    this.form.photo = photo.files[0]
+                }
+
                 this.form.post(route('post.store'), {
                     preserveScroll: true
                 });

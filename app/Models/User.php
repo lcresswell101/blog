@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -59,13 +62,35 @@ class User extends Authenticatable
         'profile_photo_url'
     ];
 
-    public function posts()
+    /**
+     * @return HasMany
+     */
+    public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
     }
 
-    public function comments()
+    /**
+     * @return HasManyThrough
+     */
+    public function comments(): HasManyThrough
     {
         return $this->hasManyThrough(Comment::class, Post::class, 'user_id', 'commentable_id');
+    }
+
+    /**
+     * @return MorphToMany
+     */
+    public function favourite_posts(): MorphToMany
+    {
+        return $this->morphedByMany(Post::class, 'favouriteable');
+    }
+
+    /**
+     * @return MorphToMany
+     */
+    public function favourite_videos(): MorphToMany
+    {
+        return $this->morphedByMany(Video::class, 'favouriteable');
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repository\Eloquent;
+namespace App\Repository;
 
 use App\Repository\CommentRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;

@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PostRequest;
-use App\Models\Post;
+use App\Repository\ImageRepositoryInterface;
 use App\Repository\UserRepositoryInterface;
+use Exception;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Repository\PostRepositoryInterface;
-use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
@@ -18,24 +17,25 @@ class PostController extends Controller
      * @var PostRepositoryInterface
      */
     private $postRepository;
-    /**
-     * @var UserRepositoryInterface
-     */
-    private $userRepository;
 
-    private $user;
+    /**
+     * @var ImageRepositoryInterface
+     */
+    private $imageRepository;
 
     /**
      * PostController constructor.
-     * @param PostRepositoryInterface $postRepository
      * @param UserRepositoryInterface $userRepository
+     * @param PostRepositoryInterface $postRepository
+     * @param ImageRepositoryInterface $imageRepository
      */
-    public function __construct(PostRepositoryInterface $postRepository, UserRepositoryInterface $userRepository)
+    public function __construct(UserRepositoryInterface $userRepository, PostRepositoryInterface $postRepository, ImageRepositoryInterface $imageRepository)
     {
-        $this->postRepository = $postRepository;
-        $this->userRepository = $userRepository;
+        parent::__construct($userRepository);
 
-        $this->user = $this->userRepository->getUser();
+        $this->postRepository = $postRepository;
+
+        $this->imageRepository = $imageRepository;
     }
 
     /**
@@ -45,10 +45,13 @@ class PostController extends Controller
      */
     public function index(): Response
     {
-        $posts = $this->postRepository->with('user')->get();
+        $posts = $this->postRepository->with(['user', 'image'])->get();
+
+        $favourite_posts = $this->user->getFavourites('favourite_posts');
 
         return Inertia::render('Posts/Index', [
-            'posts' => $posts
+            'posts' => $posts,
+            'favourite_posts' => $favourite_posts
         ]);
     }
 
@@ -70,57 +73,55 @@ class PostController extends Controller
      */
     public function store(PostRequest $request): RedirectResponse
     {
-        $this->user->posts()->create($request->validated());
+        $post = $this->postRepository->createPost($this->user, $request);
+
+        $this->imageRepository->createImage($post, 'posts', $request);
 
         return redirect()->back();
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param Post $post
-     * @return Response
+     * @param $id
      */
-    public function show(Post $post): Response
+    public function show($id)
     {
-        //
+
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param Post $post
+     * @param $id
      * @return Response
      */
-    public function edit(Post $post): Response
+    public function edit($id): Response
     {
+        $post = $this->postRepository->find($id);
+
         return Inertia::render('Posts/Update', [
             'post' => $post
         ]);
     }
 
     /**
-     * Update the specified resource in storage.
-     *
      * @param PostRequest $request
-     * @param Post $post
+     * @param $id
      * @return RedirectResponse
      */
-    public function update(PostRequest $request, Post $post): RedirectResponse
+    public function update(PostRequest $request, $id): RedirectResponse
     {
-        $post->update($request->validated());
+//        $post->update($request->validated());
 
         return redirect()->back();
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param Post $post
-     * @return \Illuminate\Http\Response
+     * @param $id
+     * @return RedirectResponse
+     * @throws Exception
      */
-    public function destroy(Post $post)
+    public function destroy($id): RedirectResponse
     {
-        //
+        $this->postRepository->find($id)->delete();
+
+        return back(303);
     }
 }

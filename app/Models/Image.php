@@ -5,22 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Facades\Storage;
 
-class Comment extends Model
+class Image extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'content',
-        'commentable_id',
-        'commentable_type'
+        'url'
     ];
 
     /**
      * @return MorphTo
      */
-    public function commentable(): MorphTo
+    public function imageable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function getUrlAttribute($value)
+    {
+        return Storage::disk('public')->url($value);
     }
 }

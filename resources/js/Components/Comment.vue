@@ -5,9 +5,9 @@
         </template>
 
         <template #title>
-            <link-main :href="route('post.show', {'post': comment.commentable.id})">
+            <link-text :href="route('post.show', {'post': comment.commentable.id})">
                 {{ comment.commentable.title }}
-            </link-main>
+            </link-text>
         </template>
 
 
@@ -23,7 +23,7 @@
 
     import JetNavLink from '@/Jetstream/NavLink'
     import Card from '@/Components/Card'
-    import LinkMain from '@/Components/LinkMain'
+    import LinkText from '@/Components/LinkText'
 
     export default {
         name: "Comment",
@@ -33,7 +33,7 @@
         components: {
             JetNavLink,
             Card,
-            LinkMain
+            LinkText
         }
     }
 </script>

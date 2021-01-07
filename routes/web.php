@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -21,11 +22,17 @@ Route::get('/', function () {
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function()
 {
-   Route::get('/dashboard', function () {
+    Route::get('/dashboard', function () {
        return Inertia\Inertia::render('Dashboard');
-   })->name('dashboard');
+    })->name('dashboard');
 
-   Route::resource('/post', PostController::class);
+    // POSTS
+    Route::resource('/post', PostController::class);
 
-   Route::resource('/user', UserController::class);
+    // IMAGES
+    Route::delete('/image/{image}', [ImageController::class, 'destroy'])->name('image.destroy');
+
+    // USERS
+    Route::resource('/user', UserController::class);
+    Route::post('/user/{post}/favourite_{type}', [UserController::class, 'favourite'])->name('user.favourite');
 });
